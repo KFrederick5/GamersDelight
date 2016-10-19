@@ -1,9 +1,12 @@
 package edu.orangecoastcollege.cs273.mpaulding.gamersdelight;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.Toast;
@@ -40,12 +43,26 @@ public class GameListActivity extends AppCompatActivity {
         // TODO:  Connect the ListView with the ListAdapter
         gamesListView = (ListView) findViewById(R.id.gameListView);
 
+        gamesListView.setAdapter(gamesListAdapter);
+
 
     }
 
     public void viewGameDetails(View view) {
         // TODO: Use an Intent to start the GameDetailsActivity with the data it needs to correctly inflate its views.
+        if(view instanceof LinearLayout) {
+            LinearLayout selectedLayout = (LinearLayout) view;
+            Game selectedGame = (Game) selectedLayout.getTag();
 
+            Log.i("Gamers Delight", selectedGame.toString());
+
+            Intent detailsIntent = new Intent(this, GameDetailsActivity.class);
+            detailsIntent.putExtra("Name", selectedGame.getName());
+            detailsIntent.putExtra("Description", selectedGame.getDescription());
+            detailsIntent.putExtra("Rating", selectedGame.getRating());
+            detailsIntent.putExtra("Image", selectedGame.getImageName());
+            startActivity(detailsIntent);
+        }
 
     }
 
@@ -58,18 +75,25 @@ public class GameListActivity extends AppCompatActivity {
         // TODO:  Add a game to the database, list, list adapter
         String name = nameEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
-        float rating = ratingBar.getNumStars();
+        float rating = ratingBar.getRating();
 
-        if(name.isEmpty() || description.isEmpty() || rating == 0)
+        /*if(name.isEmpty() || description.isEmpty() || rating == 0)
         {
             Toast.makeText(this, "Game name, description, and rating cannot be empty, doofus.",
                     Toast.LENGTH_SHORT).show();
         }
         else
-        {
+        {*/
             Game game = new Game(name, description, rating);
-        }
 
+            db.addGame(game);
+
+            gamesListAdapter.add(game);
+
+            nameEditText.setText("");
+            descriptionEditText.setText("");
+            ratingBar.setRating(0.0f);
+        //}
         // TODO:  Make sure the list adapter is updated
 
 
@@ -80,10 +104,11 @@ public class GameListActivity extends AppCompatActivity {
     public void clearAllGames(View view)
     {
         // TODO:  Delete all games from the database and lists
-        for(int i = 0; i < gamesList.size(); i++)
+        /*for(int i = 0; i < gamesList.size(); i++)
         {
             gamesList.remove(i);
-        }
+        }*/
+        gamesList.clear();
 
         db.deleteAllGames();
 

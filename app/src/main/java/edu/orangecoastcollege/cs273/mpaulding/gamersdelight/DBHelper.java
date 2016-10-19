@@ -32,10 +32,10 @@ class DBHelper extends SQLiteOpenHelper {
     public void onCreate (SQLiteDatabase database){
         // TODO:  Define the SQL statement to create a new table with the fields above.
         String table = "CREATE TABLE" + DATABASE_TABLE + "(" +
-                KEY_FIELD_ID + "INTEGER AUTO INCREMENT" +
-                FIELD_NAME + "TEXT" +
-                FIELD_DESCRIPTION + "TEXT" +
-                FIELD_RATING + "REAL" +
+                KEY_FIELD_ID + "INTEGER PRIMARY KEY AUTOINCREMENT," +
+                FIELD_NAME + "TEXT," +
+                FIELD_DESCRIPTION + "TEXT," +
+                FIELD_RATING + "REAL," +
                 FIELD_IMAGE_NAME + "TEXT" + ")";
 
         // TODO:  Primary key should auto increment
@@ -80,19 +80,20 @@ class DBHelper extends SQLiteOpenHelper {
         // TODO:  Write the code to get all games from the database and return in ArrayList
         SQLiteDatabase db = this.getReadableDatabase();
 
-        ArrayList<Game> getAllGames = new ArrayList<>();
-
-        Cursor results = db.query(DATABASE_TABLE, null, null, null, null, null, null);
+        Cursor results = db.query(DATABASE_TABLE,
+                new String[]{KEY_FIELD_ID, FIELD_NAME, FIELD_DESCRIPTION, FIELD_RATING, FIELD_IMAGE_NAME},
+                null, null, null, null, null, null);
 
         if(results.moveToFirst())
         {
             do{
-                int id = results.getInt(0);
-                String name = results.getString(1);
-                String description = results.getString(2);
-                float rating = results.getFloat(3);
-                String image_name = results.getString(4);
-                getAllGames.add(new Game(id, name, description, rating, image_name));
+                Game game =
+                        new Game(results.getInt(0),
+                                results.getString(1),
+                                results.getString(2),
+                                results.getFloat(3),
+                                results.getString(4));
+                gameList.add(game);
             }while(results.moveToNext());
         }
 
@@ -132,8 +133,11 @@ class DBHelper extends SQLiteOpenHelper {
 
         // TODO:  Write the code to get a specific game from the database
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(DATABASE_TABLE, null, KEY_FIELD_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null);
+        Cursor cursor = db.query(DATABASE_TABLE,
+                new String[]{KEY_FIELD_ID, FIELD_NAME, FIELD_DESCRIPTION, FIELD_RATING, FIELD_IMAGE_NAME},
+                KEY_FIELD_ID + "=?",
+                new String[]{String.valueOf(id)},
+                null, null, null);
 
 
         if(cursor != null)
@@ -151,9 +155,5 @@ class DBHelper extends SQLiteOpenHelper {
         // TODO:  Replace the return null statement below with the game from the database.
         return game;
     }
-
-
-
-
 
 }
